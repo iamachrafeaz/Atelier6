@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Absences de l'étudiant</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body class="bg-slate-50 min-h-screen py-10 px-4 sm:px-6 lg:px-8">
+
+<div class="max-w-5xl mx-auto space-y-6">
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+
+        <div class="flex items-center gap-4">
+            <div class="h-14 w-14 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 text-2xl font-bold">
+                <i class="ph-fill ph-student"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">
+                    <span th:text="${etudiant.prenom + ' ' + etudiant.nom}">Nom Étudiant</span>
+                </h1>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="text-sm text-slate-500">Classe:</span>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800 border border-slate-200"
+                          th:text="${etudiant.classe}">
+                            CLASSE
+                        </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <a href="/etudiants"
+               class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
+                <i class="ph ph-arrow-left"></i> Retour
+            </a>
+            <a th:href="@{'/absences/add?etudiantId=' + ${etudiant.id}}"
+               class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-md shadow-indigo-500/20 transition-colors">
+                <i class="ph ph-plus"></i> Nouvelle Absence
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100"
+         th:if="${absences != null and !absences.isEmpty()}">
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200">
+                <thead class="bg-slate-50">
+                <tr>
+                    <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">ID</th>
+                    <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Date</th>
+                    <th scope="col" class="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Motif</th>
+                    <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
+                </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-slate-200">
+                <tr class="hover:bg-slate-50 transition-colors group" th:each="absence : ${absences}">
+
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-400 font-mono" th:text="'#' + ${absence.id}">
+                        #1
+                    </td>
+
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center gap-2">
+                            <i class="ph-duotone ph-calendar-blank text-indigo-500 text-lg"></i>
+                            <span class="text-sm font-semibold text-slate-700"
+                                  th:text="${#temporals.format(absence.dateAbs, 'dd/MM/yyyy')}">
+                                        01/01/2024
+                                    </span>
+                        </div>
+                    </td>
+
+                    <td class="px-6 py-4">
+                                <span class="text-sm text-slate-600"
+                                      th:classappend="${absence.motif == null} ? 'italic text-slate-400'"
+                                      th:text="${absence.motif != null ? absence.motif : 'Aucun motif spécifié'}">
+                                    Maladie
+                                </span>
+                    </td>
+
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <a th:href="@{'/absences/edit/' + ${absence.id}}"
+                               class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
+                               title="Modifier">
+                                <i class="ph-bold ph-pencil-simple"></i>
+                            </a>
+
+                            <a th:href="@{'/absences/delete/' + ${absence.id}}"
+                               class="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette absence ?')"
+                               title="Supprimer">
+                                <i class="ph-bold ph-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex items-center justify-between">
+            <span class="text-sm text-slate-500">Total des enregistrements</span>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">
+                    <span th:text="${absences.size()}">0</span> &nbsp;Absences
+                </span>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-dashed border-slate-300 p-12 text-center"
+         th:if="${absences == null or absences.isEmpty()}">
+
+        <div class="mx-auto h-16 w-16 bg-green-50 rounded-full flex items-center justify-center mb-4">
+            <i class="ph-duotone ph-check-circle text-3xl text-green-500"></i>
+        </div>
+
+        <h3 class="text-lg font-medium text-slate-900">Aucune absence enregistrée</h3>
+        <p class="mt-1 text-sm text-slate-500 max-w-sm mx-auto">
+            Cet étudiant est présent. Si vous devez signaler une absence, utilisez le bouton ci-dessous.
+        </p>
+
+        <div class="mt-6">
+            <a th:href="@{'/absences/add?etudiantId=' + ${etudiant.id}}"
+               class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors">
+                <i class="ph-bold ph-plus"></i>
+                Ajouter la première absence
+            </a>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
